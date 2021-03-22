@@ -2,7 +2,7 @@
 
 ** Usage
 
-This libraries provides a macro that generates JSON serialisation and
+This library provides a macro that generates JSON serialisation and
 deserialisation at the same time as defining a CLOS class.
 
 For example the below definition creates a CLOS class with two fields
@@ -22,7 +22,7 @@ CL-USER> (x *point*)
 1
 CL-USER> (y *point*)
 2
-CL-USER> (point-json:to-json *point*)
+CL-USER> (herodotus:to-json *point*)
 "{\"x\":1,\"y\":2}"
 #+end_src
 
