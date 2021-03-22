@@ -22,7 +22,16 @@
 
 (define-json-model test-grid ((points () test-point)))
 
-(deftest from-json
+(define-json-model test-player (name (location () test-point)))
+
+(deftest from-json 
+  (testing "should parse a nested class in an object"
+    (let ((player (test-player-json:from-json "{ \"name\": \"bob\", \"location\": { \"x\": 11, \"y\": 5} }")))
+      (ok (string= (name player) "bob"))
+      (let ((location (location player)))
+        (ok (= (x location) 11))
+        (ok (= (y location) 5)))))
+  
   (testing "should parse a vector of nested classes in an object"
     (let ((grid (test-grid-json:from-json "{ \"points\": [{\"x\": 0, \"y\": 5}, {\"x\": 1, \"y\": 3}] }")))
       (ok (vectorp (points grid)))
