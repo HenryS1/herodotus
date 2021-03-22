@@ -1,21 +1,7 @@
 (defpackage herodotus
   (:use :cl :yason)
   (:export
-   #:define-json-model
-   #:encode
-   #:with-output-to-string*
-   #:encode-object
-   #:define-poclo
-   #:define-data-class
-   #:encode-slots
-   #:encode-object-element
-   #:parse
-   #:camel-case
-   #:snake-case
-   #:screaming-snake-case
-   #:define-parser
-   #:define-encoder
-   #:define-serialiser))
+   #:define-json-model))
 
 (in-package :herodotus)
 
@@ -104,7 +90,7 @@
       (let ((encoder-parameters 
              (loop for slot in slots
                 for key in keys
-                collect (list 'herodotus:encode-object-element key 
+                collect (list 'yason:encode-object-element key 
                               (list (slot-accessor slot) clos-obj)))))
         `(progn (defmethod yason:encode-slots progn ((,clos-obj ,class-name))
                            ,@encoder-parameters)
