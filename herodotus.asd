@@ -7,4 +7,18 @@
   :description "Wrapper around Yason JSON parser/encoder with convenience methods for CLOS"
   :long-description "Provides a define-serialiser macro that defines both an encoder and decoder for a common lisp class. Allows one to easily specify case convention for fields in a JSON object as either snake case, camel case, or screaming snake case (with apologies to the rust library serde)."
   :depends-on (:yason :alexandria :cl-ppcre)
-  :components ((:file "herodotus")))
+  :components ((:module "src"
+                :components
+                ((:file "herodotus"))))
+  :in-order-to ((test-op (test-op "herodotus/tests"))))
+
+(defsystem "herodotus/tests"
+  :author "Henry Steere"
+  :license "MIT"
+  :depends-on ("herodotus"
+               "rove")
+  :components ((:module "tests"
+                :components 
+                ((:file "herodotus"))))
+  :description "Test system for herodotus"
+  :perform (test-op (op c) (symbol-call :rove :run c)))
