@@ -1,9 +1,12 @@
 (defpackage herodotus
   (:use :cl :yason)
   (:export
+   #:to-json
    #:define-json-model))
 
 (in-package :herodotus)
+
+(defgeneric to-json (class))
 
 (defun json-package-name (class-name)
   (concatenate 'string (symbol-name class-name) "-JSON"))
@@ -94,7 +97,7 @@
                               (list (slot-accessor slot) clos-obj)))))
         `(progn (defmethod yason:encode-slots progn ((,clos-obj ,class-name))
                            ,@encoder-parameters)
-                (defun ,(intern "TO-JSON" (json-package-name class-name)) (,clos-obj)
+                (defmethod herodotus:to-json ((,clos-obj ,class-name))
                    (yason:with-output-to-string* ()
                      (encode-object ,clos-obj))))))))
 
