@@ -85,12 +85,11 @@
                  (t (make-instance ',class-name ,@constructor-params)))))))))
 
 (defmacro define-parser (class-name slots case-fn)
-  (let* ((hash-parser-name (make-hash-parser-name class-name))
-         (parser-name (make-parser-name class-name)))
+  (let* ((hash-parser-name (make-hash-parser-name class-name)))
     (alexandria:with-gensyms (json-obj)
       `(progn 
            (define-json-constructor ,class-name ,slots ,case-fn)
-           (defun ,parser-name (json)
+           (defun ,(intern "FROM-JSON" class-name) (json)
              (let ((,json-obj (yason:parse json)))
                (,hash-parser-name ,json-obj)))))))
 
@@ -102,8 +101,11 @@
                 for key in keys
                 collect (list 'herodotus:encode-object-element key 
                               (list slot clos-obj)))))
-        `(defmethod yason:encode-slots progn ((,clos-obj ,class-name))
-                    ,@encoder-parameters)))))
+        `(progn (defmethod yason:encode-slots progn ((,clos-obj ,class-name))
+                           ,@encoder-parameters)
+                (defun ,(intern "TO-JSON" class-name) (,clos-obj)
+                   (yason:with-output-to-string* ()
+                     (encode-object ,clos-obj))))))))
 
 (defun get-slot (slot-spec) 
   (if (consp slot-spec)
@@ -126,10 +128,25 @@
     (:snake-case #'snake-case)
     (t (error (format nil "Unknown case-type ~a, expected one of :camel-case, :snake-case, :screaming-snake-case" case-type)))))
 
+(defmacro within-package (package-name &rest body)
+  (let ((initial-package (package-name *package*)))
+    `(progn 
+       (in-package ,package-name)
+       ,@body
+       (in-package ,initial-package))))
+
 (defmacro define-data-class (name slots &optional (case-type :camel-case))
-  (let ((slot-defs (get-slot-defs slots))
-        (case-fn (select-case-function case-type)))
+  (alexandria:with-gensyms (obj)
+    (let ((slot-defs (get-slot-defs slots))
+          (case-fn (select-case-function case-type))
+          (initial-package (package-name *package*)))
       `(progn 
          (defclass ,name () ,slot-defs)
-         (define-encoder ,name ,slots ,case-fn)
-         (define-parser ,name ,slots ,case-fn))))
+         (progn
+           (defpackage ,name 
+             (:use :cl :herodotus :yason)
+             (:export #:from-json #:to-json #:from-hash))
+           (in-package ,name)
+           (define-encoder ,name ,slots ,case-fn)
+           (define-parser ,name ,slots ,case-fn)
+           (in-package ,initial-package))))))
