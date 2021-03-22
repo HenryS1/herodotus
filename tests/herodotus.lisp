@@ -20,11 +20,18 @@
     (let ((point (make-instance 'test-point :x 1 :y 2)))
       (ok (string= (herodotus:to-json point) "{\"x\":1,\"y\":2}")))))
 
-(define-json-model test-grid ((points () test-point)))
+(define-json-model test-stock (prices))
 
 (define-json-model test-player (name (location () test-point)))
 
+(define-json-model test-grid ((points () test-point)))
+
 (deftest from-json 
+  (testing "should parse nested vectors of builtin types"
+    (let ((stock (test-stock-json:from-json "{ \"prices\": [1, 2.0, 3.2] }")))
+      (ok (vectorp (prices stock)))
+      (ok (equalp (prices stock) #(1 2.0d0 3.2d0)))))
+
   (testing "should parse a nested class in an object"
     (let ((player (test-player-json:from-json "{ \"name\": \"bob\", \"location\": { \"x\": 11, \"y\": 5} }")))
       (ok (equal (name player) "bob"))

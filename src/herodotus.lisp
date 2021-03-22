@@ -68,8 +68,8 @@
            (handler-case 
                (cond 
                  ((null ,json-obj) (vector))
-                 ((consp ,json-obj)
-                  (coerce (mapcar #',hash-parser-name ,json-obj) 'vector))
+                 ((vectorp ,json-obj)
+                  (map 'vector #',hash-parser-name ,json-obj))
                  (t (make-instance ',class-name ,@constructor-params)))))))))
 
 (defmacro define-parser (class-name slots case-fn)
@@ -78,7 +78,8 @@
       `(progn 
            (define-json-constructor ,class-name ,slots ,case-fn)
            (defun ,(intern "FROM-JSON" (json-package-name class-name)) (json)
-             (let ((,json-obj (yason:parse json)))
+             (let* ((yason:*parse-json-arrays-as-vectors* t) 
+                    (,json-obj (yason:parse json)))
                (,hash-parser-name ,json-obj)))))))
 
 (defun slot-accessor (slot-description)
