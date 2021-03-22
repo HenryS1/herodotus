@@ -1,6 +1,7 @@
 (defpackage herodotus
   (:use :cl :yason)
   (:export
+   #:define-json-model
    #:encode
    #:with-output-to-string*
    #:encode-object
@@ -18,9 +19,8 @@
 
 (in-package :herodotus)
 
-(defun make-parser-name (class-name-symbol)
-  (let ((name (symbol-name class-name-symbol)))
-    (intern (concatenate 'string "PARSE-" name))))
+(defun json-package-name (class-name)
+  (concatenate 'string (symbol-name class-name) "-JSON"))
 
 (defun make-keyword (sym)
   (let ((name (symbol-name sym)))
@@ -34,9 +34,8 @@
 (defun snake-case (str)
   (cl-ppcre:regex-replace-all "-" str "_"))
 
-(defun make-hash-parser-name (class-name-symbol)
-  (let ((name (symbol-name class-name-symbol)))
-    (intern (concatenate 'string "PARSE-" name "-FROM-HASH"))))
+(defun make-hash-parser-name (class-name)
+  (intern "FROM-HASH" (json-package-name class-name)))
 
 (defun screaming-snake-case (str)
   (string-upcase (snake-case str)))
@@ -60,7 +59,7 @@
 (defun get-slot-type (slot) (caddr slot))
 
 (defun make-object-slot (init-arg key slot json-obj)
-  (let ((hash-parser-name (make-hash-parser-name (get-slot-type slot))))
+  (let* ((hash-parser-name (make-hash-parser-name (get-slot-type slot))))
     `(,init-arg (,hash-parser-name (gethash ,key ,json-obj)))))
 
 (defmacro define-json-constructor (class-name slots case-fn)
@@ -89,21 +88,27 @@
     (alexandria:with-gensyms (json-obj)
       `(progn 
            (define-json-constructor ,class-name ,slots ,case-fn)
-           (defun ,(intern "FROM-JSON" class-name) (json)
+           (defun ,(intern "FROM-JSON" (json-package-name class-name)) (json)
              (let ((,json-obj (yason:parse json)))
                (,hash-parser-name ,json-obj)))))))
 
+(defun slot-accessor (slot-description)
+  (if (consp slot-description)
+      (car slot-description)
+      slot-description))
+
 (defmacro define-encoder (class-name slots case-fn)
+  (format t "class-name ~a slots ~a~%" class-name slots)
   (let ((keys (make-keys slots case-fn)))
     (alexandria:with-gensyms (clos-obj)
       (let ((encoder-parameters 
              (loop for slot in slots
                 for key in keys
                 collect (list 'herodotus:encode-object-element key 
-                              (list slot clos-obj)))))
+                              (list (slot-accessor slot) clos-obj)))))
         `(progn (defmethod yason:encode-slots progn ((,clos-obj ,class-name))
                            ,@encoder-parameters)
-                (defun ,(intern "TO-JSON" class-name) (,clos-obj)
+                (defun ,(intern "TO-JSON" (json-package-name class-name)) (,clos-obj)
                    (yason:with-output-to-string* ()
                      (encode-object ,clos-obj))))))))
 
@@ -135,18 +140,16 @@
        ,@body
        (in-package ,initial-package))))
 
-(defmacro define-data-class (name slots &optional (case-type :camel-case))
-  (alexandria:with-gensyms (obj)
-    (let ((slot-defs (get-slot-defs slots))
-          (case-fn (select-case-function case-type))
-          (initial-package (package-name *package*)))
-      `(progn 
-         (defclass ,name () ,slot-defs)
-         (progn
-           (defpackage ,name 
-             (:use :cl :herodotus :yason)
-             (:export #:from-json #:to-json #:from-hash))
-           (in-package ,name)
-           (define-encoder ,name ,slots ,case-fn)
-           (define-parser ,name ,slots ,case-fn)
-           (in-package ,initial-package))))))
+(defmacro define-json-model (name slots &optional (case-type :camel-case))
+  (let ((slot-defs (get-slot-defs slots))
+        (case-fn (select-case-function case-type))
+        (initial-package (package-name *package*)))
+    `(progn 
+       (defclass ,name () ,slot-defs)
+       (defpackage ,(json-package-name name) 
+         (:use :cl :herodotus :yason)
+         (:export #:from-json #:to-json #:from-hash))
+       (in-package ,(json-package-name name))
+       (define-encoder ,name ,slots ,case-fn)
+       (define-parser ,name ,slots ,case-fn)
+       (in-package ,initial-package))))
