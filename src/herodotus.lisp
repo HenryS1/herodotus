@@ -118,9 +118,10 @@
 (defun select-case-function (case-type)
   (case case-type
     (:camel-case #'camel-case)
-    (:screaming-snake-case #'screaming-snake-case)
     (:snake-case #'snake-case)
-    (t (error (format nil "Unknown case-type ~a, expected one of :camel-case, :snake-case, :screaming-snake-case" case-type)))))
+    (:screaming-snake-case #'screaming-snake-case)
+    (:kebab-case #'identity)
+    (t (error (format nil "Unknown case-type ~a, expected one of :camel-case, :snake-case, :screaming-snake-case or :kebab-case" case-type)))))
 
 (defmacro within-package (package-name &rest body)
   (let ((initial-package (package-name *package*)))

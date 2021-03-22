@@ -27,7 +27,7 @@
 (deftest from-json 
   (testing "should parse a nested class in an object"
     (let ((player (test-player-json:from-json "{ \"name\": \"bob\", \"location\": { \"x\": 11, \"y\": 5} }")))
-      (ok (string= (name player) "bob"))
+      (ok (equal (name player) "bob"))
       (let ((location (location player)))
         (ok (= (x location) 11))
         (ok (= (y location) 5)))))
@@ -43,4 +43,30 @@
         (ok (= (x p2) 1))
         (ok (= (y p2) 3))))))
 
+(define-json-model test-snake (snake-case) :snake-case)
 
+(deftest snake-case
+  (testing "should read an object formatted in snake case"
+    (let ((snake (test-snake-json:from-json "{ \"snake_case\": \"boa\" }")))
+      (ok (equal (snake-case snake) "boa")))))
+
+(define-json-model test-camel (camel-case) :camel-case)
+
+(deftest camel-case
+  (testing "should read an object formatted in camel case"
+    (let ((camel (test-camel-json:from-json "{ \"camelCase\": \"ship of the desert\"}")))
+      (ok (equal (camel-case camel) "ship of the desert")))))
+
+(define-json-model test-screaming-snake (screaming-snake-case) :screaming-snake-case)
+
+(deftest screaming-snake-case
+  (testing "should read an object formatted in screaming snake case"
+    (let ((screaming-snake (test-screaming-snake-json:from-json "{ \"SCREAMING_SNAKE_CASE\": \"screech\" }")))
+      (ok (equal (screaming-snake-case screaming-snake) "screech")))))
+
+(define-json-model test-kebab (kebab-case) :kebab-case)
+
+(deftest kebab-case
+  (testing "should read an object formatted in kebab case"
+    (let ((kebab (test-kebab-json:from-json "{ \"kebab-case\": \"skewered zucchini\" }")))
+      (ok (equal (kebab-case kebab) "skewered zucchini"))))) 
