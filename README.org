@@ -1,0 +1,28 @@
+* Herodotus
+
+** Usage
+
+This libraries provides a macro that generates JSON serialisation and
+deserialisation at the same time as defining a CLOS class.
+
+For example the below definition creates a CLOS class with two fields
+~x~ and ~y~ which have obvious accessors (~x~ and ~y~) and initargs
+(~:x~ and ~:y~). 
+#+begin_src lisp
+CL-USER> (herodotus:define-json-model point (x y))
+#+end_src
+
+It also defines a package named ~point-json~ with functions for
+parsing json ~point:from-json~ and writing to json ~point:to-json~.
+
+#+begin_src lisp
+CL-USER> (defvar *point* (point-json:from-json "{ \"x\": 1, \"y\": 2 }"))
+*POINT*
+CL-USER> (x *point*)
+1
+CL-USER> (y *point*)
+2
+CL-USER> (point-json:to-json *point*)
+"{\"x\":1,\"y\":2}"
+#+end_src
+
