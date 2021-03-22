@@ -1,7 +1,7 @@
 (defsystem herodotus
   :name "Herodotus"
   :author "Henry Steere"
-  :version "0.0.1"
+  :version "0.1.0"
   :maintainer "henry.steere@gmail.com"
   :license "BSD"
   :description "Wrapper around Yason JSON parser/encoder with convenience methods for CLOS"
