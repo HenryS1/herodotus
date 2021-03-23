@@ -84,3 +84,15 @@
   (testing "should read an object formatted in kebab case"
     (let ((kebab (test-kebab-json:from-json "{ \"kebab-case\": \"skewered zucchini\" }")))
       (ok (equal (kebab-case kebab) "skewered zucchini"))))) 
+
+(define-json-model test-names ((custom-name "Custom_Name" ()) ordinary-name) :camel-case)
+
+(deftest custom-name
+  (testing "should read custom names in the format they are provided"
+    (let ((names (test-names-json:from-json "{ \"Custom_Name\": \"Dweezle\", \"ordinaryName\": \"Bob\" }")))
+      (ok (equal (custom-name names) "Dweezle"))
+      (ok (equal (ordinary-name names) "Bob"))))
+
+  (testing "should write fields with the format provided in a custom name"
+    (let ((names (make-instance 'test-names :custom-name "Dweezle" :ordinary-name "Bob")))
+      (ok (equal (herodotus:to-json names) "{\"Custom_Name\":\"Dweezle\",\"ordinaryName\":\"Bob\"}")))))
