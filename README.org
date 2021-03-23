@@ -27,8 +27,14 @@ CL-USER> (herodotus:to-json *point*)
 "{\"x\":1,\"y\":2}"
 #+end_src
 
+
+
 ** Dependencies
 
 The project depends on YASON which does the json parsing and
 serialisation under the hood and CL-PPCRE for text manipulation during
 code generation.
+
+** License
+
+This project is provided under the MIT license. See the LICENSE file for details.

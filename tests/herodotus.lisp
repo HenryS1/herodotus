@@ -30,9 +30,9 @@
 
 (deftest from-json 
   (testing "should parse vectors of builtin types"
-    (let ((stock (test-stock-json:from-json "{ \"prices\": [1, 2.0, 3.2] }")))
+    (let ((stock (test-stock-json:from-json "{ \"prices\": [1, 2, 3] }")))
       (ok (vectorp (prices stock)))
-      (ok (equalp (prices stock) #(1 2.0d0 3.2d0)))))
+      (ok (equalp (prices stock) #(1 2 3)))))
 
   (testing "should parse hash tables of builtin types"
     (let ((dictionary (test-dictionary-json:from-json "{ \"entries\": { \"bird\": \"flying animal\", \"river\": \"moving inland body of water\" } }")))
