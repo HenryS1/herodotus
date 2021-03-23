@@ -24,7 +24,10 @@
   (cl-ppcre:regex-replace-all "-" str "_"))
 
 (defun make-hash-parser-name (class-name)
-  (intern "FROM-HASH" (json-package-name class-name)))
+  (let ((name (json-package-name class-name)))
+    (if (find-package name)
+        (intern "FROM-HASH" name)
+        (error (format nil "Could not find parser for class ~a. Please define a json model for it." class-name)))))
 
 (defun screaming-snake-case (str)
   (string-upcase (snake-case str)))

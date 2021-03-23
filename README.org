@@ -2,7 +2,7 @@
 
 * Herodotus
 
-** Usage
+** Basic usage
 
 This library provides a macro that generates JSON serialisation and
 deserialisation at the same time as defining a CLOS class.

@@ -96,3 +96,14 @@
   (testing "should write fields with the format provided in a custom name"
     (let ((names (make-instance 'test-names :custom-name "Dweezle" :ordinary-name "Bob")))
       (ok (equal (herodotus:to-json names) "{\"Custom_Name\":\"Dweezle\",\"ordinaryName\":\"Bob\"}")))))
+
+(deftest nested-class-without-parser
+  (testing "should raise an error during class definition"
+    (handler-case 
+       (progn (eval '(define-json-model test-no-parser ((things () not-parseable))))
+              (fail "An error should be raised for a nested class without a parser"))
+      (error (err)
+        (if (search "Could not find parser" (format nil "~a" err))
+            (pass "Got the expected error for an undefined parser")
+            (fail (format nil "Unexpected error. Expected parser missing error, got: ~a" err)))))))
+
