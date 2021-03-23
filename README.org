@@ -12,8 +12,9 @@ For example the below definition creates a CLOS class with two fields
 CL-USER> (herodotus:define-json-model point (x y))
 #+end_src
 
-It also defines a package named ~point-json~ with functions for
-parsing json ~point:from-json~ and writing to json ~point:to-json~.
+It also defines a package named ~point-json~ with a function for
+parsing json ~point:from-json~ and also implements a generic method
+for writing to json in the herodotus package.
 
 #+begin_src lisp
 CL-USER> (defvar *point* (point-json:from-json "{ \"x\": 1, \"y\": 2 }"))
@@ -26,3 +27,8 @@ CL-USER> (herodotus:to-json *point*)
 "{\"x\":1,\"y\":2}"
 #+end_src
 
+** Dependencies
+
+The project depends on YASON which does the json parsing and
+serialisation under the hood and CL-PPCRE for text manipulation during
+code generation.
