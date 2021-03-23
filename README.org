@@ -1,3 +1,5 @@
+[[https://github.com/HenryS1/herodotus/tree/master][https://github.com/HenryS1/herodotus/actions/workflows/ci.yaml/badge.svg]]
+
 * Herodotus
 
 ** Usage
