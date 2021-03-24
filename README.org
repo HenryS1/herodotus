@@ -113,8 +113,8 @@ CL-USER> (herodotus:to-json (special-case-json:from-json "{ \"A_very-UniqueNAME\
 
 ** Dependencies
 
-The project depends on YASON which does the json parsing and
-serialisation under the hood and CL-PPCRE for text manipulation during
+The project depends on [[https://github.com/phmarek/yason][YASON]] which does the json parsing and
+serialisation under the hood and [[https://github.com/edicl/cl-ppcre][CL-PPCRE]] for text manipulation during
 code generation.
 
 ** License
