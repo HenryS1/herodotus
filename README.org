@@ -29,29 +29,6 @@ CL-USER> (herodotus:to-json *point*)
 "{\"x\":1,\"y\":2}"
 #+end_src
 
-** Macro specification
-
-The ~define-json-model~ macro takes three arguments: ~name~, ~slots~
-and ~case-type~. The ~name~ argument is the name of the generated CLOS
-class. The ~slots~ argument is a collection of slot descriptors and
-the ~case-type~ argument is a keyword.
-
-Slot descriptors can be either symbols or lists. If a slot descriptor
-is a symbol then the value of the corresponding CLOS slot will be a
-deserialised json primitive in lisp form: a number, boolean, string,
-vector (for arrays), or hash-table (for objects).
-
-If a slot descriptor is a list then first argument is the CLOS slot
-name, the second argument is either ~()~ or the name of a previously
-defined json model to deserialise the value of this field to. The
-optional third argument is a special case name for this field which
-can have custom formatting.
-
-The ~case-type~ keyword argument is one of ~:screaming-snake-case~,
-~:snake-case~, ~:kebab-case~ and ~:camel-case~ and defines the
-formatting convention for field names in a json object. More details
-are given below.
-
 ** Nested classes 
 
 You can also define classes that have class members using the type
@@ -134,6 +111,28 @@ CL-USER> (herodotus:to-json (special-case-json:from-json "{ \"A_very-UniqueNAME\
 "{\"A_very-UniqueNAME\":\"Phineas Fog\"}"
 #+end_src
 
+** Macro specification
+
+The ~define-json-model~ macro takes three arguments: ~name~, ~slots~
+and an optional argument for ~case-type~. The ~name~ argument is the
+name of the generated CLOS class. The ~slots~ argument is a collection
+of slot descriptors and the ~case-type~ argument is a keyword.
+
+Slot descriptors can be either symbols or lists. If a slot descriptor
+is a symbol then the value of the corresponding CLOS slot will be a
+deserialised json primitive in lisp form: a number, boolean, string,
+vector (for arrays), or hash-table (for objects).
+
+If a slot descriptor is a list then first argument is the CLOS slot
+name, the second argument is either ~()~ or the name of a previously
+defined json model to deserialise the value of this field to. The
+optional third argument is a special case name for this field which
+can have custom formatting.
+
+The ~case-type~ keyword argument is one of ~:screaming-snake-case~,
+~:snake-case~, ~:kebab-case~ and ~:camel-case~ and defines the
+formatting convention for field names in a json object.
+
 ** Dependencies
 
 The project depends on [[https://github.com/phmarek/yason][YASON]] which does the json parsing and
@@ -143,3 +142,4 @@ code generation.
 ** License
 
 This project is provided under the MIT license. See the LICENSE file for details.
+
