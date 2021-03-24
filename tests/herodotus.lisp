@@ -89,8 +89,8 @@
 
 (deftest custom-name
   (testing "should read custom names in the format they are provided"
-    (let ((names (test-names-json:from-json "{ \"Custom_Name\": \"Dweezle\", \"ordinaryName\": \"Bob\" }")))
-      (ok (equal (custom-name names) "Dweezle"))
+    (let ((names (test-names-json:from-json "{ \"Custom_Name\": \"Dweezil\", \"ordinaryName\": \"Bob\" }")))
+      (ok (equal (custom-name names) "Dweezil"))
       (ok (equal (ordinary-name names) "Bob"))))
 
   (testing "should write fields with the format provided in a custom name"
