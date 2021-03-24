@@ -24,9 +24,9 @@
 
 (define-json-model test-dictionary (entries))
 
-(define-json-model test-player (name (location () test-point)))
+(define-json-model test-player (name (location test-point)))
 
-(define-json-model test-grid ((points () test-point)))
+(define-json-model test-grid ((points test-point)))
 
 (deftest from-json 
   (testing "should parse vectors of builtin types"
@@ -85,7 +85,7 @@
     (let ((kebab (test-kebab-json:from-json "{ \"kebab-case\": \"skewered zucchini\" }")))
       (ok (equal (kebab-case kebab) "skewered zucchini"))))) 
 
-(define-json-model test-names ((custom-name "Custom_Name" ()) ordinary-name) :camel-case)
+(define-json-model test-names ((custom-name () "Custom_Name") ordinary-name) :camel-case)
 
 (deftest custom-name
   (testing "should read custom names in the format they are provided"
@@ -100,7 +100,7 @@
 (deftest nested-class-without-parser
   (testing "should raise an error during class definition"
     (handler-case 
-       (progn (eval '(define-json-model test-no-parser ((things () not-parseable))))
+       (progn (eval '(define-json-model test-no-parser ((things not-parseable))))
               (fail "An error should be raised for a nested class without a parser"))
       (error (err)
         (if (search "Could not find parser" (format nil "~a" err))

@@ -29,7 +29,72 @@ CL-USER> (herodotus:to-json *point*)
 "{\"x\":1,\"y\":2}"
 #+end_src
 
+** Nested classes 
 
+You can also define classes that have class members using the type
+specifier syntax. This block defines two json models ~tree~ and
+~branch~. A ~tree~ has ~branch~ members and the branch members will be
+parsed from json using the parser defined for the ~tree~.
+
+#+begin_src lisp
+CL-USER> (herodotus:define-json-model branch (size))
+CL-USER> (herodotus:define-json-model tree ((branches branch)))
+#+end_src
+
+The syntax ~(branches branch)~ declares that the field named
+~branches~ must be parsed as the type ~branch~. Json models for nested
+classes need to be defined before the models for the classes they are
+nested in or an error will be thrown. The error is thrown at macro
+expansion time.
+
+#+begin_src lisp
+CL-USER> (herodotus:define-json-model test-no-parser ((things not-parseable)))
+CL-USER> (herodotus:define-json-model test-no-parser ((things not-parseable)))
+class-name TEST-NO-PARSER slots ((THINGS NOT-PARSEABLE))
+; Evaluation aborted on #<SIMPLE-ERROR "Could not find parser for
+; class NOT-PARSEABLE. Please define a json model for it."
+; {100599D903}>.
+#+end_src
+
+** None, one or many semantics
+
+Fields in class definitions are parsed as either nil (if missing from
+the json), a single instance if the field is not an array and isn't
+empty or a vector if the json contains an array of elements.
+
+#+begin_src lisp
+CL-USER> (herodotus:define-json-model numbers (ns))
+CL-USER> (ns (numbers-json:from-json "{ }"))
+NIL
+CL_USER> (ns (numbers-json:from-json "{ \"ns\": 1 }"))
+1
+CL-USER> (ns (numbers-json:from-json "{ \"ns\": [1, 2, 3] }"))
+#(1 2 3)
+#+end_src
+
+** Setting the parsing case
+
+The macro ~define-json-model~ has an optional third argument which
+specifies the case convention for parsing json fields. The options for
+this argument are
+
+#+begin_src lisp
+:camel-case ;; camelCase
+:kebab-case ;; kebab-case
+:snake-case ;; snake_case
+:screaming-snake-case ;; SCREAMING_SNAKE_CASE
+#+end_src
+
+The default value of the argumet is ~:camel-case~. Below is an example
+of changing the default case to snake case.
+
+#+begin_src lisp
+CL-USER> (herodotus:define-json-model snake-case (pet-snake) :snake-case)
+CL-USER> (pet-snake (snake-case-json:from-json "{ \"pet_snake\": \"boa\" }"))
+"boa"
+CL-USER> (herodotus:to-json (snake-case-json:from-json "{ \"pet_snake\": \"boa\" }"))
+"{\"pet_snake\":\"boa\"}"
+#+end_src
 
 ** Dependencies
 

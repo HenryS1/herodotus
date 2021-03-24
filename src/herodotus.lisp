@@ -33,22 +33,22 @@
   (string-upcase (snake-case str)))
 
 (defun has-custom-key (x) 
-  (and (consp x) (cadr x)))
+  (and (consp x) (caddr x)))
 
 (defun make-keys (slots case-fn)
   (mapcar (lambda (slot) 
             (if (has-custom-key slot)
-                (cadr slot)
+                (caddr slot)
                 (funcall case-fn (string-downcase (symbol-name (get-slot slot)))))) 
           slots))
 
 (defun has-object-constructor (slot) 
-  (and (consp slot) (caddr slot)))
+  (and (consp slot) (cadr slot)))
 
 (defun make-standard-slot (init-arg key json-obj)
   `(,init-arg (gethash ,key ,json-obj)))
 
-(defun get-slot-type (slot) (caddr slot))
+(defun get-slot-type (slot) (cadr slot))
 
 (defun make-object-slot (init-arg key slot json-obj)
   (let* ((hash-parser-name (make-hash-parser-name (get-slot-type slot))))
@@ -68,12 +68,11 @@
                                    (make-object-slot init-arg key slot json-obj)
                                    (make-standard-slot init-arg key json-obj))))))
         `(defun ,hash-parser-name (,json-obj)
-           (handler-case 
-               (cond 
-                 ((null ,json-obj) (vector))
-                 ((vectorp ,json-obj)
-                  (map 'vector #',hash-parser-name ,json-obj))
-                 (t (make-instance ',class-name ,@constructor-params)))))))))
+           (cond 
+             ((null ,json-obj) (vector))
+             ((vectorp ,json-obj)
+              (map 'vector #',hash-parser-name ,json-obj))
+             (t (make-instance ',class-name ,@constructor-params))))))))
 
 (defmacro define-parser (class-name slots case-fn)
   (let* ((hash-parser-name (make-hash-parser-name class-name)))
@@ -91,7 +90,6 @@
       slot-description))
 
 (defmacro define-encoder (class-name slots case-fn)
-  (format t "class-name ~a slots ~a~%" class-name slots)
   (let ((keys (make-keys slots case-fn)))
     (alexandria:with-gensyms (clos-obj)
       (let ((encoder-parameters 
@@ -143,7 +141,9 @@
        (defpackage ,(json-package-name name) 
          (:use :cl :herodotus :yason)
          (:export #:from-json #:to-json #:from-hash))
-       (in-package ,(json-package-name name))
-       (define-encoder ,name ,slots ,case-fn)
-       (define-parser ,name ,slots ,case-fn)
-       (in-package ,initial-package))))
+       (unwind-protect
+            (progn 
+              (in-package ,(json-package-name name))
+              (define-encoder ,name ,slots ,case-fn)
+              (define-parser ,name ,slots ,case-fn))
+         (in-package ,initial-package)))))
