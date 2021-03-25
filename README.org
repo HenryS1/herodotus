@@ -15,7 +15,7 @@ CL-USER> (herodotus:define-json-model point (x y))
 #+end_src
 
 It also defines a package named ~point-json~ with a function for
-parsing json ~point:from-json~ and also implements a generic method
+parsing json ~point-json:from-json~ and also implements a generic method
 for writing to json in the herodotus package.
 
 #+begin_src lisp
