@@ -136,8 +136,8 @@ formatting convention for field names in a json object.
 ** Dependencies
 
 The project depends on [[https://github.com/phmarek/yason][YASON]] which does the json parsing and
-serialisation under the hood and [[https://github.com/edicl/cl-ppcre][CL-PPCRE]] for text manipulation during
-code generation.
+serialisation under the hood, [[https://github.com/edicl/cl-ppcre][CL-PPCRE]] for text manipulation during
+code generation and [[https://github.com/kmx-io/alexandria][Alexandria]] for macro writing utilities.
 
 ** License
 
