@@ -2,6 +2,24 @@
 
 * Herodotus
 
+** Installation
+
+The library is available on quicklisp since the ~2021-04-11~ dist so
+you can install with
+#+begin_src lisp
+(ql:quickload :herodotus)
+#+end_src
+
+To install from source clone the repo into your lisp sources directory
+and load with asdf
+#+begin_src lisp
+(asdf:load-system :herodotus)
+#+end_src
+or use [[https://github.com/fukamachi/qlot][qlot]]
+#+begin_src txt
+git herodotus https://github.com/HenryS1/herodotus.git :branch master
+#+end_src
+
 ** Basic usage
 
 This library provides a macro that generates JSON serialisation and
