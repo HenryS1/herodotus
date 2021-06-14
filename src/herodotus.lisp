@@ -8,6 +8,18 @@
 
 (defgeneric to-json (class))
 
+(defmethod to-json ((thing (eql 't)))
+  (with-output-to-string (s)
+    (yason:encode thing s)))
+
+(defmethod to-json ((thing (eql nil)))
+  (with-output-to-string (s)
+    (yason:encode thing s)))
+
+(defmethod to-json ((thing t))
+  (with-output-to-string (s)
+    (yason:encode thing s)))
+
 (defun json-package-name (class-name)
   (concatenate 'string (symbol-name class-name) "-JSON"))
 
