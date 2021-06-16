@@ -107,3 +107,29 @@
             (pass "Got the expected error for an undefined parser")
             (fail (format nil "Unexpected error. Expected parser missing error, got: ~a" err)))))))
 
+(deftest serialize-list
+    (testing "should serialize list to a json array"
+      (ok (equal (herodotus:to-json '(1 2 3)) "[1,2,3]"))))
+
+(deftest serialize-vector
+    (testing "should serialize a vector to a json array"
+      (ok (equal (herodotus:to-json #(1 2 3)) "[1,2,3]"))))
+
+(deftest serialize-hash-table
+    (let ((table (make-hash-table :test 'equal)))
+      (setf (gethash "name" table) "john")
+      (setf (gethash "age" table) 60)
+      (testing "should serialize a hash-table to a json object"
+        (ok (equal (herodotus:to-json table) "{\"name\":\"john\",\"age\":60}")))))
+
+(deftest serialize-number 
+  (ok (equal (herodotus:to-json 1) "1")))
+
+(deftest serialize-true
+  (ok (equal (herodotus:to-json t) "true")))
+
+(deftest serialize-nil
+  (ok (equal (herodotus:to-json nil) "null")))
+
+(deftest serialize-string
+  (ok (equal (herodotus:to-json "string") "\"string\"")))
