@@ -103,7 +103,7 @@ this argument are
 :screaming-snake-case ;; SCREAMING_SNAKE_CASE
 #+end_src
 
-The default value of the argumet is ~:camel-case~. Below is an example
+The default value of the argument is ~:camel-case~. Below is an example
 of changing the default case to snake case.
 
 #+begin_src lisp
