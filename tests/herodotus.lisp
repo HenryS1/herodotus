@@ -97,6 +97,14 @@
     (let ((names (make-instance 'test-names :custom-name "Dweezle" :ordinary-name "Bob")))
       (ok (equal (herodotus:to-json names) "{\"Custom_Name\":\"Dweezle\",\"ordinaryName\":\"Bob\"}")))))
 
+(deftest encode-nested-class
+  (testing "should encode a class inside a class"
+    (let ((test-player (make-instance 'test-player
+                                      :name "player" 
+                                      :location (make-instance 'test-point :x 1 :y 10))))
+      (ok (equalp (herodotus:to-json test-player) 
+                  "{\"name\":\"player\",\"location\":{\"x\":1,\"y\":10}}")))))
+
 (deftest nested-class-without-parser
   (testing "should raise an error during class definition"
     (handler-case 

@@ -8,6 +8,8 @@
 
 (defgeneric to-json (class))
 
+(defgeneric object-to-hash (class))
+
 (defmethod to-json ((thing (eql 't)))
   (with-output-to-string (s)
     (yason:encode thing s)))
@@ -66,6 +68,26 @@
   (let* ((hash-parser-name (make-hash-parser-name (get-slot-type slot))))
     `(,init-arg (,hash-parser-name (gethash ,key ,json-obj)))))
 
+(defun get-slot-name (slot)
+  (if (consp slot) (car slot) slot))
+
+(defmacro define-to-hash (class-name slots case-fn)
+  (let* ((keys (make-keys slots case-fn)))
+    (alexandria:with-gensyms (obj result )
+      (let ((params
+             (loop for key in keys
+                for slot in slots
+                collect (if (has-object-constructor slot)
+                            `(setf (gethash ,key ,result) 
+                                   (cond ((null (,(car slot) ,obj)) nil)
+                                         ((or (vectorp (,(car slot) ,obj)) (listp (,(car slot) ,obj)))
+                                          (map 'vector #'object-to-hash (,(car slot) ,obj)))
+                                         (t (object-to-hash (,(car slot) ,obj)))))
+                            `(setf (gethash ,key ,result) (,(get-slot-name slot) ,obj))))))
+       `(defmethod object-to-hash ((,obj ,class-name))
+          (let ((,result (make-hash-table :test 'equal)))
+            (progn ,@params ,result)))))))
+
 (defmacro define-json-constructor (class-name slots case-fn)
   (let* ((keys (make-keys slots case-fn))
          (init-args (mapcar #'make-init-arg slots))
@@ -102,18 +124,11 @@
       slot-description))
 
 (defmacro define-encoder (class-name slots case-fn)
-  (let ((keys (make-keys slots case-fn)))
-    (alexandria:with-gensyms (clos-obj)
-      (let ((encoder-parameters 
-             (loop for slot in slots
-                for key in keys
-                collect (list 'yason:encode-object-element key 
-                              (list (slot-accessor slot) clos-obj)))))
-        `(progn (defmethod yason:encode-slots progn ((,clos-obj ,class-name))
-                           ,@encoder-parameters)
-                (defmethod herodotus:to-json ((,clos-obj ,class-name))
-                   (yason:with-output-to-string* ()
-                     (encode-object ,clos-obj))))))))
+  (alexandria:with-gensyms (clos-obj)
+    `(progn (define-to-hash ,class-name ,slots ,case-fn)
+            (defmethod herodotus:to-json ((,clos-obj ,class-name))
+              (with-output-to-string (s)
+                (encode (object-to-hash ,clos-obj) s))))))
 
 (defun get-slot (slot-spec) 
   (if (consp slot-spec)
