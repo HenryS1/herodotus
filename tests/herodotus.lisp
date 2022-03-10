@@ -71,6 +71,16 @@
     (let ((camel (test-camel-json:from-json "{ \"camelCase\": \"ship of the desert\"}")))
       (ok (equal (camel-case camel) "ship of the desert")))))
 
+(define-json-model test-pascal-case (pascal-case) :pascal-case)
+
+(deftest pascal-case
+  (testing "should read an object formatted in pascal case"
+    (let ((scientist (test-pascal-case-json:from-json "{\"PascalCase\":\"Blaise\"}")))
+      (ok (equalp (pascal-case scientist) "Blaise"))))
+  (testing "should write an object formatted in pascal case"
+    (let ((scientist (make-instance 'test-pascal-case :pascal-case "Blaise")))
+      (ok (equalp (herodotus:to-json scientist) "{\"PascalCase\":\"Blaise\"}")))))
+
 (define-json-model test-screaming-snake (screaming-snake-case) :screaming-snake-case)
 
 (deftest screaming-snake-case
