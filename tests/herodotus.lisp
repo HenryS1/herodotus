@@ -71,6 +71,16 @@
     (let ((camel (test-camel-json:from-json "{ \"camelCase\": \"ship of the desert\"}")))
       (ok (equal (camel-case camel) "ship of the desert")))))
 
+(define-json-model test-pascal-case (pascal-case) :pascal-case)
+
+(deftest pascal-case
+  (testing "should read an object formatted in pascal case"
+    (let ((scientist (test-pascal-case-json:from-json "{\"PascalCase\":\"Blaise\"}")))
+      (ok (equalp (pascal-case scientist) "Blaise"))))
+  (testing "should write an object formatted in pascal case"
+    (let ((scientist (make-instance 'test-pascal-case :pascal-case "Blaise")))
+      (ok (equalp (herodotus:to-json scientist) "{\"PascalCase\":\"Blaise\"}")))))
+
 (define-json-model test-screaming-snake (screaming-snake-case) :screaming-snake-case)
 
 (deftest screaming-snake-case
@@ -96,6 +106,14 @@
   (testing "should write fields with the format provided in a custom name"
     (let ((names (make-instance 'test-names :custom-name "Dweezle" :ordinary-name "Bob")))
       (ok (equal (herodotus:to-json names) "{\"Custom_Name\":\"Dweezle\",\"ordinaryName\":\"Bob\"}")))))
+
+(deftest encode-nested-class
+  (testing "should encode a class inside a class"
+    (let ((test-player (make-instance 'test-player
+                                      :name "player" 
+                                      :location (make-instance 'test-point :x 1 :y 10))))
+      (ok (equalp (herodotus:to-json test-player) 
+                  "{\"name\":\"player\",\"location\":{\"x\":1,\"y\":10}}")))))
 
 (deftest nested-class-without-parser
   (testing "should raise an error during class definition"
